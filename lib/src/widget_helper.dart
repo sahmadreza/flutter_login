@@ -7,10 +7,12 @@ Size getWidgetSize(GlobalKey key) {
   return renderBox?.size;
 }
 
-Flushbar showSuccessToast(BuildContext context, String message) {
+Flushbar showSuccessToast(BuildContext context, String message, String title) {
   return Flushbar(
-    title: 'Success',
+    title: title,
     message: message,
+    flushbarPosition: FlushbarPosition.TOP,
+    flushbarStyle: FlushbarStyle.FLOATING,
     icon: Icon(
       Icons.check,
       size: 28.0,
@@ -24,10 +26,12 @@ Flushbar showSuccessToast(BuildContext context, String message) {
   )..show(context);
 }
 
-Flushbar showErrorToast(BuildContext context, String message) {
+Flushbar showErrorToast(BuildContext context, String message, String title) {
   return Flushbar(
-    title: 'Error',
+    title: title,
     message: message,
+    flushbarPosition: FlushbarPosition.TOP,
+    flushbarStyle: FlushbarStyle.FLOATING,
     icon: Icon(
       Icons.error,
       size: 28.0,

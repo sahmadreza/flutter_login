@@ -463,6 +463,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.forward();
     setState(() => _isSubmitting = true);
     final auth = Provider.of<Auth>(context, listen: false);
+    final messages = Provider.of<LoginMessages>(context, listen: false);
     String error;
 
     if (auth.isLogin) {
@@ -486,7 +487,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.reverse();
 
     if (!DartHelper.isNullOrEmpty(error)) {
-      showErrorToast(context, error);
+      showErrorToast(context, error,messages.flushbarTitleError);
       Future.delayed(const Duration(milliseconds: 271), () {
         setState(() => _showShadow = true);
       });
@@ -743,12 +744,12 @@ class _RecoverCardState extends State<_RecoverCard>
     final error = await auth.onRecoverPassword(auth.email);
 
     if (error != null) {
-      showErrorToast(context, error);
+      showErrorToast(context, error,messages.flushbarTitleSuccess);
       setState(() => _isSubmitting = false);
       _submitController.reverse();
       return false;
     } else {
-      showSuccessToast(context, messages.recoverPasswordSuccess);
+      showSuccessToast(context, messages.recoverPasswordSuccess,messages.flushbarTitleError);
       setState(() => _isSubmitting = false);
       _submitController.reverse();
       return true;
