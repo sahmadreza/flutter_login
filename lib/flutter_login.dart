@@ -72,12 +72,14 @@ class _Header extends StatefulWidget {
     this.logoTag,
     this.title,
     this.titleTag,
+    this.logoWidget,
     this.height = 250.0,
     this.logoController,
     this.titleController,
     @required this.loginTheme,
   });
 
+  final Widget logoWidget;
   final String logoPath;
   final String logoTag;
   final String title;
@@ -148,6 +150,9 @@ class __HeaderState extends State<_Header> {
             height: logoHeight,
           )
         : NullWidget();
+    if(widget.logoWidget !=  null)  {
+      logo = widget.logoWidget;
+    }   
 
     if (widget.logoTag != null) {
       logo = Hero(
