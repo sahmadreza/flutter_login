@@ -218,7 +218,6 @@ class FlutterLogin extends StatefulWidget {
     this.flushbarConfigError,
     this.title = 'LOGIN',
     this.logo,
-    this.logoWidget,
     this.messages,
     this.theme,
     this.emailValidator,
