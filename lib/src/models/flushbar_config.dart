@@ -1,5 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:quiver/core.dart';
 
 class FlushbarConfig {
   final String globalTitle;
@@ -48,4 +49,13 @@ class FlushbarConfig {
   String toString() {
     return '$runtimeType($flushbarPosition, $flushbarStyle)';
   }
+  bool operator ==(Object other) {
+    if (other is FlushbarConfig) {
+      return globalTitle == other.globalTitle && defaultMessage == other.defaultMessage;
+    }
+    return false;
+  }
+
+  int get hashCode => hash2(globalTitle, defaultMessage);
 }
+
