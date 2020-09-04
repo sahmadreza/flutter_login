@@ -215,6 +215,7 @@ class FlutterLogin extends StatefulWidget {
     @required this.onRecoverPassword,
     this.title = 'LOGIN',
     this.logo,
+    this.logoWidget,
     this.messages,
     this.theme,
     this.emailValidator,
