@@ -27,6 +27,8 @@ class AuthCard extends StatefulWidget {
     this.emailValidator,
     this.passwordValidator,
     this.onSubmit,
+    @required this.flushbarConfigError,
+    @required this.flushbarConfigSuccess,
     this.onSubmitCompleted,
   }) : super(key: key);
 
@@ -36,6 +38,8 @@ class AuthCard extends StatefulWidget {
   final FormFieldValidator<String> passwordValidator;
   final Function onSubmit;
   final Function onSubmitCompleted;
+  final flushbarConfigError;
+  final flushbarConfigSuccess;
 
   @override
   AuthCardState createState() => AuthCardState();
@@ -99,7 +103,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     // replace 0 with minPositive to pass the test
     // https://github.com/flutter/flutter/issues/42527#issuecomment-575131275
     _cardOverlayHeightFactorAnimation =
-        Tween<double>(begin: double.minPositive, end: 1.0).animate(CurvedAnimation(
+        Tween<double>(begin: double.minPositive, end: 1.0)
+            .animate(CurvedAnimation(
       parent: _routeTransitionController,
       curve: Interval(.27272727, .5 /* ~250ms */, curve: Curves.linear),
     ));
@@ -288,6 +293,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                         : (_formLoadingController..value = 1.0),
                     emailValidator: widget.emailValidator,
                     passwordValidator: widget.passwordValidator,
+                    flushbarConfigError: widget.flushbarConfigError,
                     onSwitchRecoveryPassword: () => _switchRecovery(true),
                     onSubmitCompleted: () {
                       _forwardChangeRouteAnimation().then((_) {
@@ -299,6 +305,8 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
               : _RecoverCard(
                   emailValidator: widget.emailValidator,
                   onSwitchLogin: () => _switchRecovery(false),
+                  flushbarConfigError: widget.flushbarConfigError,
+                  flushbarConfigSuccess: widget.flushbarConfigSuccess,
                 );
 
           return Align(
@@ -332,6 +340,7 @@ class _LoginCard extends StatefulWidget {
     @required this.emailValidator,
     @required this.passwordValidator,
     @required this.onSwitchRecoveryPassword,
+    @required this.flushbarConfigError,
     this.onSwitchAuth,
     this.onSubmitCompleted,
   }) : super(key: key);
@@ -342,6 +351,7 @@ class _LoginCard extends StatefulWidget {
   final Function onSwitchRecoveryPassword;
   final Function onSwitchAuth;
   final Function onSubmitCompleted;
+  final flushbarConfigError;
 
   @override
   _LoginCardState createState() => _LoginCardState();
@@ -463,7 +473,6 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.forward();
     setState(() => _isSubmitting = true);
     final auth = Provider.of<Auth>(context, listen: false);
-    final messages = Provider.of<LoginMessages>(context, listen: false);
     String error;
 
     if (auth.isLogin) {
@@ -487,7 +496,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _submitController.reverse();
 
     if (!DartHelper.isNullOrEmpty(error)) {
-      showErrorToast(context, error,messages.flushbarTitleError);
+      showErrorToast(context, error, widget.flushbarConfigError);
       Future.delayed(const Duration(milliseconds: 271), () {
         setState(() => _showShadow = true);
       });
@@ -541,7 +550,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildConfirmPasswordField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildConfirmPasswordField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedPasswordTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
@@ -577,16 +587,19 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           style: theme.textTheme.body1,
           textAlign: TextAlign.left,
         ),
-        onPressed: buttonEnabled ? () {
-          // save state to populate email field on recovery card
-          _formKey.currentState.save();
-          widget.onSwitchRecoveryPassword();
-        } : null,
+        onPressed: buttonEnabled
+            ? () {
+                // save state to populate email field on recovery card
+                _formKey.currentState.save();
+                widget.onSwitchRecoveryPassword();
+              }
+            : null,
       ),
     );
   }
 
-  Widget _buildSubmitButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSubmitButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return ScaleTransition(
       scale: _buttonScaleAnimation,
       child: AnimatedButton(
@@ -597,7 +610,8 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSwitchAuthButton(ThemeData theme, LoginMessages messages, Auth auth) {
+  Widget _buildSwitchAuthButton(
+      ThemeData theme, LoginMessages messages, Auth auth) {
     return FadeIn(
       controller: _loadingController,
       offset: .5,
@@ -693,10 +707,14 @@ class _RecoverCard extends StatefulWidget {
     Key key,
     @required this.emailValidator,
     @required this.onSwitchLogin,
+    @required this.flushbarConfigError,
+    @required this.flushbarConfigSuccess,
   }) : super(key: key);
 
   final FormFieldValidator<String> emailValidator;
   final Function onSwitchLogin;
+  final flushbarConfigError;
+  final flushbarConfigSuccess;
 
   @override
   _RecoverCardState createState() => _RecoverCardState();
@@ -744,19 +762,21 @@ class _RecoverCardState extends State<_RecoverCard>
     final error = await auth.onRecoverPassword(auth.email);
 
     if (error != null) {
-      showErrorToast(context, error,messages.flushbarTitleError);
+      showErrorToast(context, error, widget.flushbarConfigError);
       setState(() => _isSubmitting = false);
       _submitController.reverse();
       return false;
     } else {
-      showSuccessToast(context, messages.recoverPasswordSuccess,messages.flushbarTitleSuccess);
+      showSuccessToast(context, messages.recoverPasswordSuccess,
+          widget.flushbarConfigSuccess);
       setState(() => _isSubmitting = false);
       _submitController.reverse();
       return true;
     }
   }
 
-  Widget _buildRecoverNameField(double width, LoginMessages messages, Auth auth) {
+  Widget _buildRecoverNameField(
+      double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       controller: _nameController,
       width: width,
@@ -781,10 +801,12 @@ class _RecoverCardState extends State<_RecoverCard>
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
     return FlatButton(
       child: Text(messages.goBackButton),
-      onPressed: !_isSubmitting ? () {
-        _formRecoverKey.currentState.save();
-        widget.onSwitchLogin();
-      } : null,
+      onPressed: !_isSubmitting
+          ? () {
+              _formRecoverKey.currentState.save();
+              widget.onSwitchLogin();
+            }
+          : null,
       padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       textColor: theme.primaryColor,

@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login/src/models/flushbar_config.dart';
 import 'package:provider/provider.dart';
 import 'src/providers/login_theme.dart';
 import 'src/widgets/null_widget.dart';
@@ -213,6 +214,8 @@ class FlutterLogin extends StatefulWidget {
     @required this.onSignup,
     @required this.onLogin,
     @required this.onRecoverPassword,
+    this.flushbarConfigSuccess,
+    this.flushbarConfigError,
     this.title = 'LOGIN',
     this.logo,
     this.logoWidget,
@@ -237,7 +240,12 @@ class FlutterLogin extends StatefulWidget {
 
   /// The large text above the login [Card], usually the app or company name
   final String title;
+  /// Flushbar configs for success message
+  final FlushbarConfig flushbarConfigSuccess;
 
+  /// Flushbar configs for error message
+  final FlushbarConfig flushbarConfigError;
+  
   /// The path to the asset image that will be passed to the `Image.asset()`
   final String logo;
 
@@ -591,6 +599,8 @@ class _FlutterLoginState extends State<FlutterLogin>
                         passwordValidator: passwordValidator,
                         onSubmit: _reverseHeaderAnimation,
                         onSubmitCompleted: widget.onSubmitAnimationCompleted,
+                        flushbarConfigError: widget.flushbarConfigError ?? FlushbarConfig().errorDefault(),
+                        flushbarConfigSuccess: widget.flushbarConfigSuccess ?? FlushbarConfig().successDefault(),
                       ),
                     ),
                     Positioned(

@@ -1,44 +1,37 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_login/src/models/flushbar_config.dart';
 
 Size getWidgetSize(GlobalKey key) {
   final RenderBox renderBox = key.currentContext?.findRenderObject();
   return renderBox?.size;
 }
 
-Flushbar showSuccessToast(BuildContext context, String message, String title) {
+Flushbar showSuccessToast(BuildContext context, String message, FlushbarConfig flushbarConfig) {
   return Flushbar(
-    title: title,
-    message: message,
-    flushbarPosition: FlushbarPosition.TOP,
-    flushbarStyle: FlushbarStyle.FLOATING,
-    icon: Icon(
-      Icons.check,
-      size: 28.0,
-      color: Colors.white,
-    ),
-    duration: const Duration(seconds: 4),
-    backgroundGradient: LinearGradient(
+    title: flushbarConfig.globalTitle,
+    message: message ?? flushbarConfig.defaultMessage,
+    flushbarPosition: flushbarConfig.flushbarPosition,
+    flushbarStyle: flushbarConfig.flushbarStyle,
+    icon: flushbarConfig.icon,
+    duration: flushbarConfig.duration,
+    backgroundGradient: flushbarConfig.backgroundGradient ?? LinearGradient(
       colors: [Colors.green[600], Colors.green[400]],
     ),
     onTap: (flushbar) => flushbar.dismiss(),
   )..show(context);
 }
 
-Flushbar showErrorToast(BuildContext context, String message, String title) {
+Flushbar showErrorToast(BuildContext context, String message, FlushbarConfig flushbarConfig) {
   return Flushbar(
-    title: title,
-    message: message,
-    flushbarPosition: FlushbarPosition.TOP,
-    flushbarStyle: FlushbarStyle.FLOATING,
-    icon: Icon(
-      Icons.error,
-      size: 28.0,
-      color: Colors.white,
-    ),
-    duration: const Duration(seconds: 4),
-    backgroundGradient: LinearGradient(
+    title: flushbarConfig.globalTitle,
+    message: message ?? flushbarConfig.defaultMessage,
+    flushbarPosition: flushbarConfig.flushbarPosition,
+    flushbarStyle: flushbarConfig.flushbarStyle,
+    icon: flushbarConfig.icon,
+    duration: flushbarConfig.duration,
+    backgroundGradient: flushbarConfig.backgroundGradient ?? LinearGradient(
       colors: [Colors.red[600], Colors.red[400]],
     ),
     onTap: (flushbar) => flushbar.dismiss(),
