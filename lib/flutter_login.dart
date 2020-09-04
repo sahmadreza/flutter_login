@@ -240,6 +240,9 @@ class FlutterLogin extends StatefulWidget {
   /// The path to the asset image that will be passed to the `Image.asset()`
   final String logo;
 
+  /// The widget `Image.asset()` customize . if pass null you can use logo path
+  final Widget logoWidget;
+
   /// Describes all of the labels, text hints, button texts and other auth
   /// descriptions
   final LoginMessages messages;
@@ -356,6 +359,7 @@ class _FlutterLoginState extends State<FlutterLogin>
       height: height,
       logoPath: widget.logo,
       logoTag: widget.logoTag,
+      logoWidget: widget.logoWidget,
       title: widget.title,
       titleTag: widget.titleTag,
       loginTheme: loginTheme,
