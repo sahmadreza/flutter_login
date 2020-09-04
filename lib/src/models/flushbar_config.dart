@@ -1,5 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:quiver/core.dart';
 
 class FlushbarConfig {
   final String globalTitle;
