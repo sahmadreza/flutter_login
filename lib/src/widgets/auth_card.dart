@@ -392,14 +392,14 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
     final auth = Provider.of<Auth>(context, listen: false);
     final messages = Provider.of<LoginMessages>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      auth.refCode = messages.refCode;
-    });
+
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
     _refCodeController = TextEditingController(text: auth.refCode);
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refCodeController.text = messages.refCode;
+    });
     _loadingController = widget.loadingController ??
         (AnimationController(
           vsync: this,
@@ -584,8 +584,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildRefCodeField(
-      double width, LoginMessages messages, Auth auth) {
+  Widget _buildRefCodeField(double width, LoginMessages messages, Auth auth) {
     return AnimatedRefCodeTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
@@ -706,7 +705,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             child: Column(
               children: <Widget>[
                 _buildConfirmPasswordField(textFieldWidth, messages, auth),
-                 SizedBox(height: 20),
+                SizedBox(height: 20),
                 _buildRefCodeField(textFieldWidth, messages, auth),
               ],
             ),
