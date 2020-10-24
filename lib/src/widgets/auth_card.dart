@@ -581,7 +581,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   Widget _buildRefCodeField(
       double width, LoginMessages messages, Auth auth) {
-    return AnimatedPasswordTextFormField(
+    return AnimatedRefCodeTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
       loadingController: _loadingController,
@@ -701,6 +701,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             child: Column(
               children: <Widget>[
                 _buildConfirmPasswordField(textFieldWidth, messages, auth),
+                 SizedBox(height: 20),
                 _buildRefCodeField(textFieldWidth, messages, auth),
               ],
             ),

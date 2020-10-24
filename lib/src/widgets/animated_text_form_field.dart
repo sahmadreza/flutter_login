@@ -341,3 +341,72 @@ class _AnimatedPasswordTextFormFieldState
     );
   }
 }
+
+
+class AnimatedRefCodeTextFormField extends StatefulWidget {
+  AnimatedRefCodeTextFormField({
+    Key key,
+    this.interval = const Interval(0.0, 1.0),
+    @required this.animatedWidth,
+    this.loadingController,
+    this.inertiaController,
+    this.inertiaDirection,
+    this.enabled = true,
+    this.labelText,
+    this.keyboardType,
+    this.textInputAction,
+    this.controller,
+    this.focusNode,
+    this.validator,
+    this.onFieldSubmitted,
+    this.onSaved,
+  })  : assert((inertiaController == null && inertiaDirection == null) ||
+            (inertiaController != null && inertiaDirection != null)),
+        super(key: key);
+
+  final Interval interval;
+  final AnimationController loadingController;
+  final AnimationController inertiaController;
+  final double animatedWidth;
+  final bool enabled;
+  final String labelText;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final FormFieldValidator<String> validator;
+  final ValueChanged<String> onFieldSubmitted;
+  final FormFieldSetter<String> onSaved;
+  final TextFieldInertiaDirection inertiaDirection;
+
+  @override
+  _AnimatedRefCodeTextFormFieldState createState() =>
+      _AnimatedRefCodeTextFormFieldState();
+}
+
+class _AnimatedRefCodeTextFormFieldState
+    extends State<AnimatedRefCodeTextFormField> {
+  var _obscureText = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedTextFormField(
+      interval: widget.interval,
+      loadingController: widget.loadingController,
+      inertiaController: widget.inertiaController,
+      width: widget.animatedWidth,
+      enabled: widget.enabled,
+      labelText: widget.labelText,
+      prefixIcon: Icon(FontAwesomeIcons.userPlus, size: 18),
+      obscureText: _obscureText,
+      keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
+      controller: widget.controller,
+      focusNode: widget.focusNode,
+      validator: widget.validator,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      onSaved: widget.onSaved,
+      inertiaDirection: widget.inertiaDirection,
+    );
+  }
+}
