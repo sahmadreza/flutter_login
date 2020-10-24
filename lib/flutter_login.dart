@@ -21,9 +21,10 @@ import 'src/widgets/hero_text.dart';
 import 'src/widgets/gradient_box.dart';
 export 'src/models/login_data.dart';
 export 'src/providers/login_messages.dart';
-import 'src/models/flushbar_config.dart';
+export 'src/models/flushbar_config.dart';
 export 'src/providers/login_theme.dart';
 import 'src/constants.dart';
+// import 'package:flutter_login/src/models/flushbar_config.dart';
 
 class _AnimationTimeDilationDropdown extends StatelessWidget {
   _AnimationTimeDilationDropdown({
