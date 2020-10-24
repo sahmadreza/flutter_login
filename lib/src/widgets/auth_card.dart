@@ -392,7 +392,9 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
     final auth = Provider.of<Auth>(context, listen: false);
     final messages = Provider.of<LoginMessages>(context, listen: false);
-    auth.refCode = messages.refCode;
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      auth.refCode = messages.refCode;
+    });
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
