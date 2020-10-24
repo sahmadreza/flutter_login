@@ -24,7 +24,7 @@ export 'src/providers/login_messages.dart';
 export 'src/models/flushbar_config.dart';
 export 'src/providers/login_theme.dart';
 import 'src/constants.dart';
-// import 'package:flutter_login/src/models/flushbar_config.dart';
+import 'package:flutter_login/src/models/flushbar_config.dart';
 
 class _AnimationTimeDilationDropdown extends StatelessWidget {
   _AnimationTimeDilationDropdown({
