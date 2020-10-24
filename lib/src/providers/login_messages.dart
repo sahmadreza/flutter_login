@@ -16,6 +16,7 @@ class LoginMessages with ChangeNotifier {
     this.recoverPasswordSuccess: defaultRecoverPasswordSuccess,
     this.flushbarTitleSuccess: defaultFlushbarTitleSuccess,
     this.flushbarTitleError: defaultFlushbarTitleError,
+    this.refCodeHint: defaultRefCodeHint,
   });
 
   static const defaultUsernameHint = 'Email';
@@ -33,6 +34,9 @@ class LoginMessages with ChangeNotifier {
   static const defaultRecoverPasswordSuccess = 'An email has been sent';
   static const defaultFlushbarTitleSuccess = 'Success';
   static const defaultFlushbarTitleError = 'Erorr';
+  static const defaultRefCodeHint = 'Referrer code (Optional)';
+  
+
   /// Hint text of the user name [TextField]
   final String usernameHint;
 
@@ -41,6 +45,9 @@ class LoginMessages with ChangeNotifier {
 
   /// Hint text of the confirm password [TextField]
   final String confirmPasswordHint;
+
+    /// Hint text of the referrer code [TextField]
+  final String refCodeHint;
 
   /// Forgot password button's label
   final String forgotPasswordButton;

@@ -362,10 +362,12 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
 
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
+  final _refCodeFocusNode = FocusNode();
 
   TextEditingController _nameController;
   TextEditingController _passController;
   TextEditingController _confirmPassController;
+  TextEditingController _refCodeController;
 
   var _isLoading = false;
   var _isSubmitting = false;
@@ -392,6 +394,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _nameController = TextEditingController(text: auth.email);
     _passController = TextEditingController(text: auth.password);
     _confirmPassController = TextEditingController(text: auth.confirmPassword);
+    _refCodeController = TextEditingController(text: auth.refCode);
 
     _loadingController = widget.loadingController ??
         (AnimationController(
@@ -442,6 +445,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     _loadingController?.removeStatusListener(handleLoadingAnimationStatus);
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
+    _refCodeFocusNode.dispose();
 
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
@@ -575,6 +579,24 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildRefCodeField(
+      double width, LoginMessages messages, Auth auth) {
+    return AnimatedPasswordTextFormField(
+      animatedWidth: width,
+      enabled: auth.isSignup,
+      loadingController: _loadingController,
+      inertiaController: _postSwitchAuthController,
+      inertiaDirection: TextFieldInertiaDirection.right,
+      labelText: messages.refCodeHint,
+      controller: _refCodeController,
+      textInputAction: TextInputAction.done,
+      focusNode: _refCodeFocusNode,
+      onFieldSubmitted: (value) => _submit(),
+      validator: (value) => null,
+      onSaved: (value) => auth.refCode = value,
+    );
+  }
+
   Widget _buildForgotPassword(ThemeData theme, LoginMessages messages) {
     return FadeIn(
       controller: _loadingController,
@@ -676,7 +698,12 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
               vertical: 10,
             ),
             onExpandCompleted: () => _postSwitchAuthController.forward(),
-            child: _buildConfirmPasswordField(textFieldWidth, messages, auth),
+            child: Column(
+              children: <Widget>[
+                _buildConfirmPasswordField(textFieldWidth, messages, auth),
+                _buildRefCodeField(textFieldWidth, messages, auth),
+              ],
+            ),
           ),
           Container(
             padding: Paddings.fromRBL(cardPadding),
