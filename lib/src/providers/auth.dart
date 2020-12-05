@@ -39,6 +39,7 @@ class Auth with ChangeNotifier {
   bool get isLogin => _mode == AuthMode.Login;
   bool get isSignup => _mode == AuthMode.Signup;
   bool isRecover = false;
+  bool isOtpLogin = false;
 
   AuthMode opposite() {
     return _mode == AuthMode.Login ? AuthMode.Signup : AuthMode.Login;

@@ -151,6 +151,25 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       _pageIndex = 0;
     }
   }
+  void _switchOtpLogin(bool otpLogin) {
+    final auth = Provider.of<Auth>(context, listen: false);
+
+    auth.isOtpLogin = otpLogin;
+    if (otpLogin) {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+      _pageIndex = 2;
+    } else {
+      _pageController.previousPage(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+      _pageIndex = 0;
+    }
+  }
+  
 
   Future<void> runLoadingAnimation() {
     if (widget.loadingController.isDismissed) {
@@ -276,7 +295,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       child: TransformerPageView(
         physics: NeverScrollableScrollPhysics(),
         pageController: _pageController,
-        itemCount: 2,
+        itemCount: 3,
 
         /// Need to keep track of page index because soft keyboard will
         /// make page view rebuilt
@@ -295,6 +314,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                     passwordValidator: widget.passwordValidator,
                     flushbarConfigError: widget.flushbarConfigError,
                     onSwitchRecoveryPassword: () => _switchRecovery(true),
+                    onSwitchOtpLogin: () => _switchOtpLogin(true),
                     onSubmitCompleted: () {
                       _forwardChangeRouteAnimation().then((_) {
                         widget?.onSubmitCompleted();
@@ -302,9 +322,14 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                     },
                   ),
                 )
-              : _RecoverCard(
+              : (index == 1) ? _RecoverCard(
                   emailValidator: widget.emailValidator,
                   onSwitchLogin: () => _switchRecovery(false),
+                  flushbarConfigError: widget.flushbarConfigError,
+                  flushbarConfigSuccess: widget.flushbarConfigSuccess,
+                ) : _OtpLoginCard(
+                  emailValidator: widget.emailValidator,
+                  onSwitchLogin: () => _switchOtpLogin(false),
                   flushbarConfigError: widget.flushbarConfigError,
                   flushbarConfigSuccess: widget.flushbarConfigSuccess,
                 );
@@ -340,6 +365,7 @@ class _LoginCard extends StatefulWidget {
     @required this.emailValidator,
     @required this.passwordValidator,
     @required this.onSwitchRecoveryPassword,
+    @required this.onSwitchOtpLogin,
     @required this.flushbarConfigError,
     this.onSwitchAuth,
     this.onSubmitCompleted,
@@ -349,6 +375,7 @@ class _LoginCard extends StatefulWidget {
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> passwordValidator;
   final Function onSwitchRecoveryPassword;
+  final Function onSwitchOtpLogin;
   final Function onSwitchAuth;
   final Function onSubmitCompleted;
   final flushbarConfigError;
@@ -623,6 +650,28 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       ),
     );
   }
+  Widget _buildOtpLogin(ThemeData theme, LoginMessages messages) {
+    return FadeIn(
+      controller: _loadingController,
+      fadeDirection: FadeDirection.bottomToTop,
+      offset: .5,
+      curve: _textButtonLoadingAnimationInterval,
+      child: FlatButton(
+        child: Text(
+          messages.otpLoginButton,
+          style: theme.textTheme.body1,
+          textAlign: TextAlign.left,
+        ),
+        onPressed: buttonEnabled
+            ? () {
+                // save state to populate mobile field on otp login card
+                _formKey.currentState.save();
+                widget.onSwitchOtpLogin();
+              }
+            : null,
+      ),
+    );
+  }
 
   Widget _buildSubmitButton(
       ThemeData theme, LoginMessages messages, Auth auth) {
@@ -715,6 +764,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             width: cardWidth,
             child: Column(
               children: <Widget>[
+                _buildOtpLogin(theme, messages),
                 _buildForgotPassword(theme, messages),
                 _buildSubmitButton(theme, messages, auth),
                 _buildSwitchAuthButton(theme, messages, auth),
@@ -897,3 +947,169 @@ class _RecoverCardState extends State<_RecoverCard>
     );
   }
 }
+
+
+class _OtpLoginCard extends StatefulWidget {
+  _OtpLoginCard({
+    Key key,
+    @required this.emailValidator,
+    @required this.onSwitchLogin,
+    @required this.flushbarConfigError,
+    @required this.flushbarConfigSuccess,
+  }) : super(key: key);
+
+  final FormFieldValidator<String> emailValidator;
+  final Function onSwitchLogin;
+  final flushbarConfigError;
+  final flushbarConfigSuccess;
+
+  @override
+  _OtpLoginCardState createState() => _OtpLoginCardState();
+}
+
+class _OtpLoginCardState extends State<_OtpLoginCard>
+    with SingleTickerProviderStateMixin {
+  final GlobalKey<FormState> _formRecoverKey = GlobalKey();
+
+  TextEditingController _nameController;
+
+  var _isSubmitting = false;
+
+  AnimationController _submitController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final auth = Provider.of<Auth>(context, listen: false);
+    _nameController = new TextEditingController(text: auth.email);
+
+    _submitController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _submitController.dispose();
+  }
+
+  Future<bool> _submit() async {
+    if (!_formRecoverKey.currentState.validate()) {
+      return false;
+    }
+    final auth = Provider.of<Auth>(context, listen: false);
+    final messages = Provider.of<LoginMessages>(context, listen: false);
+
+    _formRecoverKey.currentState.save();
+    _submitController.forward();
+    setState(() => _isSubmitting = true);
+    final error = await auth.onRecoverPassword(auth.email);
+
+    if (error != null) {
+      showErrorToast(context, error, widget.flushbarConfigError);
+      setState(() => _isSubmitting = false);
+      _submitController.reverse();
+      return false;
+    } else {
+      showSuccessToast(context, messages.recoverPasswordSuccess,
+          widget.flushbarConfigSuccess);
+      setState(() => _isSubmitting = false);
+      _submitController.reverse();
+      return true;
+    }
+  }
+
+  Widget _buildRecoverNameField(
+      double width, LoginMessages messages, Auth auth) {
+    return AnimatedTextFormField(
+      controller: _nameController,
+      width: width,
+      labelText: messages.usernameHint,
+      prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (value) => _submit(),
+      validator: widget.emailValidator,
+      onSaved: (value) => auth.email = value,
+    );
+  }
+
+  Widget _buildOtpButton(ThemeData theme, LoginMessages messages) {
+    return AnimatedButton(
+      controller: _submitController,
+      text: messages.otpLoginButton,
+      onPressed: !_isSubmitting ? _submit : null,
+    );
+  }
+
+  Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
+    return FlatButton(
+      child: Text(messages.goBackButton),
+      onPressed: !_isSubmitting
+          ? () {
+              _formRecoverKey.currentState.save();
+              widget.onSwitchLogin();
+            }
+          : null,
+      padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      textColor: theme.primaryColor,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final auth = Provider.of<Auth>(context, listen: false);
+    final messages = Provider.of<LoginMessages>(context, listen: false);
+    final deviceSize = MediaQuery.of(context).size;
+    final cardWidth = min(deviceSize.width * 0.75, 360.0);
+    const cardPadding = 16.0;
+    final textFieldWidth = cardWidth - cardPadding * 2;
+
+    return FittedBox(
+      // width: cardWidth,
+      child: Card(
+        child: Container(
+          padding: const EdgeInsets.only(
+            left: cardPadding,
+            top: cardPadding + 10.0,
+            right: cardPadding,
+            bottom: cardPadding,
+          ),
+          width: cardWidth,
+          alignment: Alignment.center,
+          child: Form(
+            key: _formRecoverKey,
+            child: Column(
+              children: [
+                Text(
+                  messages.otpLoginIntro,
+                  key: kOtpLoginIntroKey,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.body1,
+                ),
+                SizedBox(height: 20),
+                _buildRecoverNameField(textFieldWidth, messages, auth),
+                SizedBox(height: 20),
+                Text(
+                  messages.otpLoginDescription,
+                  key: kOtpLoginDescriptionKey,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.body1,
+                ),
+                SizedBox(height: 26),
+                _buildOtpButton(theme, messages),
+                _buildBackButton(theme, messages),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

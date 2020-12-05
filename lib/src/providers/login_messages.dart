@@ -6,6 +6,9 @@ class LoginMessages with ChangeNotifier {
     this.passwordHint: defaultPasswordHint,
     this.confirmPasswordHint: defaultConfirmPasswordHint,
     this.forgotPasswordButton: defaultForgotPasswordButton,
+    this.otpLoginButton: defaultOtpLoginButton,
+    this.otpLoginIntro: defaultOtpLoginIntro,
+    this.otpLoginDescription: defaultOtpLoginDescription,
     this.loginButton: defaultLoginButton,
     this.signupButton: defaultSignupButton,
     this.recoverPasswordButton: defaultRecoverPasswordButton,
@@ -24,12 +27,16 @@ class LoginMessages with ChangeNotifier {
   static const defaultPasswordHint = 'Password';
   static const defaultConfirmPasswordHint = 'Confirm Password';
   static const defaultForgotPasswordButton = 'Forgot Password?';
+  static const defaultOtpLoginButton = "Otp Login";
   static const defaultLoginButton = 'LOGIN';
   static const defaultSignupButton = 'SIGNUP';
   static const defaultRecoverPasswordButton = 'RECOVER';
   static const defaultRecoverPasswordIntro = 'Reset your password here';
   static const defaultRecoverPasswordDescription =
       'We will send your plain-text password to this email account.';
+  static const defaultOtpLoginIntro = 'Login with otp code!';
+  static const defaultOtpLoginDescription =
+      'We will send to your phone otp code';
   static const defaultGoBackButton = 'BACK';
   static const defaultConfirmPasswordError = 'Password do not match!';
   static const defaultRecoverPasswordSuccess = 'An email has been sent';
@@ -37,7 +44,6 @@ class LoginMessages with ChangeNotifier {
   static const defaultFlushbarTitleError = 'Erorr';
   static const defaultRefCodeHint = 'Referrer code (Optional)';
   static const defaultRefCode = '';
-  
 
   /// Hint text of the user name [TextField]
   final String usernameHint;
@@ -56,6 +62,15 @@ class LoginMessages with ChangeNotifier {
 
   /// Forgot password button's label
   final String forgotPasswordButton;
+
+  /// Otp login button's label
+  final String otpLoginButton;
+
+  /// Intro in password recovery form
+  final String otpLoginIntro;
+
+  /// Description in password recovery form
+  final String otpLoginDescription;
 
   /// Login button's label
   final String loginButton;
