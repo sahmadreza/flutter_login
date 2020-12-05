@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class LoginMessages with ChangeNotifier {
   LoginMessages({
     this.usernameHint: defaultUsernameHint,
+    this.phoneNumberHint: defaulPhoneNumberHint,
     this.passwordHint: defaultPasswordHint,
     this.confirmPasswordHint: defaultConfirmPasswordHint,
     this.forgotPasswordButton: defaultForgotPasswordButton,
@@ -17,13 +18,17 @@ class LoginMessages with ChangeNotifier {
     this.goBackButton: defaultGoBackButton,
     this.confirmPasswordError: defaultConfirmPasswordError,
     this.recoverPasswordSuccess: defaultRecoverPasswordSuccess,
+    this.otpLoginSuccess: defaultOtpLoginSuccess,
     this.flushbarTitleSuccess: defaultFlushbarTitleSuccess,
     this.flushbarTitleError: defaultFlushbarTitleError,
     this.refCodeHint: defaultRefCodeHint,
     this.refCode: defaultRefCode,
+    this.otpCodeHint: defaulOtpCodeHint,
   });
 
   static const defaultUsernameHint = 'Email';
+  static const defaulPhoneNumberHint = 'Phone';
+  static const defaulOtpCodeHint = 'Otp Code';
   static const defaultPasswordHint = 'Password';
   static const defaultConfirmPasswordHint = 'Confirm Password';
   static const defaultForgotPasswordButton = 'Forgot Password?';
@@ -36,10 +41,11 @@ class LoginMessages with ChangeNotifier {
       'We will send your plain-text password to this email account.';
   static const defaultOtpLoginIntro = 'Login with otp code!';
   static const defaultOtpLoginDescription =
-      'We will send to your phone otp code';
+      'The otp code will be sent to your mobile number';
   static const defaultGoBackButton = 'BACK';
   static const defaultConfirmPasswordError = 'Password do not match!';
   static const defaultRecoverPasswordSuccess = 'An email has been sent';
+  static const defaultOtpLoginSuccess = 'An message has been sent';
   static const defaultFlushbarTitleSuccess = 'Success';
   static const defaultFlushbarTitleError = 'Erorr';
   static const defaultRefCodeHint = 'Referrer code (Optional)';
@@ -47,6 +53,12 @@ class LoginMessages with ChangeNotifier {
 
   /// Hint text of the user name [TextField]
   final String usernameHint;
+
+  /// Hint text of the phone number [TextField]
+  final String phoneNumberHint;
+
+  /// Hint text of the otp code [TextField]
+  final String otpCodeHint;
 
   /// Hint text of the password [TextField]
   final String passwordHint;
@@ -97,6 +109,9 @@ class LoginMessages with ChangeNotifier {
 
   /// The success message to show after submitting recover password
   final String recoverPasswordSuccess;
+
+  /// The success message to show after submitting otp login
+  final String otpLoginSuccess;
 
   /// The success title to show in flushbar
   final String flushbarTitleSuccess;

@@ -10,16 +10,26 @@ typedef AuthCallback = Future<String> Function(LoginData);
 /// The result is an error message, callback successes if message is null
 typedef RecoverCallback = Future<String> Function(String);
 
+/// The result is an error message, callback successes if message is null
+typedef OtpVerifyCallback = Future<String> Function(String, String);
+
+/// The result is an error message, callback successes if message is null
+typedef OtpLoginCallback = Future<String> Function(String);
+
 class Auth with ChangeNotifier {
   Auth({
     this.onLogin,
     this.onSignup,
     this.onRecoverPassword,
+    this.onOtpLogin,
+    this.onOtpVerify,
     String email = '',
+    String otpCode = '',
     String password = '',
     String confirmPassword = '',
     String refCode = '',
   })  : this._email = email,
+        this._otpCode = otpCode,
         this._password = password,
         this._confirmPassword = confirmPassword,
         this._refCode = refCode;
@@ -27,6 +37,8 @@ class Auth with ChangeNotifier {
   final AuthCallback onLogin;
   final AuthCallback onSignup;
   final RecoverCallback onRecoverPassword;
+  final OtpLoginCallback onOtpLogin;
+  final OtpVerifyCallback onOtpVerify;
 
   AuthMode _mode = AuthMode.Login;
 
@@ -52,6 +64,13 @@ class Auth with ChangeNotifier {
       mode = AuthMode.Login;
     }
     return mode;
+  }
+
+  String _otpCode = '';
+  get otpCode => _otpCode;
+  set otpCode(String otpCode) {
+    _otpCode = otpCode;
+    notifyListeners();
   }
 
   String _email = '';

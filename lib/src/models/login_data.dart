@@ -5,11 +5,13 @@ class LoginData {
   final String name;
   final String password;
   final String refCode;
+  final String otpCode;
 
   LoginData({
     @required this.name,
     @required this.password,
     this.refCode = "",
+    this.otpCode = "",
   });
 
   @override

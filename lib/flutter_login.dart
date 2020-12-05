@@ -152,9 +152,9 @@ class __HeaderState extends State<_Header> {
             height: logoHeight,
           )
         : NullWidget();
-    if(widget.logoWidget !=  null)  {
+    if (widget.logoWidget != null) {
       logo = widget.logoWidget;
-    }   
+    }
 
     if (widget.logoTag != null) {
       logo = Hero(
@@ -215,6 +215,8 @@ class FlutterLogin extends StatefulWidget {
     @required this.onSignup,
     @required this.onLogin,
     @required this.onRecoverPassword,
+    @required this.onOtpLogin,
+    @required this.onOtpVerify,
     this.flushbarConfigSuccess,
     this.flushbarConfigError,
     this.title = 'LOGIN',
@@ -223,6 +225,8 @@ class FlutterLogin extends StatefulWidget {
     this.theme,
     this.emailValidator,
     this.passwordValidator,
+    this.mobileValidator,
+    this.otpValidator,
     this.onSubmitAnimationCompleted,
     this.logoTag,
     this.titleTag,
@@ -239,14 +243,21 @@ class FlutterLogin extends StatefulWidget {
   /// Called when the user hit the submit button when in recover password mode
   final RecoverCallback onRecoverPassword;
 
+  /// Called when the user hit the submit button when in otp login mode
+  final OtpLoginCallback onOtpLogin;
+
+  /// Called when the user hit the submit button when in otp verify password mode
+  final OtpVerifyCallback onOtpVerify;
+
   /// The large text above the login [Card], usually the app or company name
   final String title;
+
   /// Flushbar configs for success message
   final FlushbarConfig flushbarConfigSuccess;
 
   /// Flushbar configs for error message
   final FlushbarConfig flushbarConfigError;
-  
+
   /// The path to the asset image that will be passed to the `Image.asset()`
   final String logo;
 
@@ -266,8 +277,15 @@ class FlutterLogin extends StatefulWidget {
   /// invalid, or null otherwise
   final FormFieldValidator<String> emailValidator;
 
+  /// Otp code validating logic, Returns an error string to display if the input is
+  /// invalid, or null otherwise
+  final FormFieldValidator<String> otpValidator;
+
   /// Same as [emailValidator] but for password
   final FormFieldValidator<String> passwordValidator;
+
+  /// Same as [emailValidator] but for mobile
+  final FormFieldValidator<String> mobileValidator;
 
   /// Called after the submit animation's completed. Put your route transition
   /// logic here. Recommend to use with [logoTag] and [titleTag]
@@ -286,6 +304,19 @@ class FlutterLogin extends StatefulWidget {
   /// release mode, this will be overrided to false regardless of the value
   /// passed in
   final bool showDebugButtons;
+
+  static final FormFieldValidator<String> defaultMobileValidator = (value) {
+    if (value.isEmpty || value.length != 11) {
+      return 'Invalid mobile number!';
+    }
+    return null;
+  };
+  static final FormFieldValidator<String> defaultOtpValidator = (value) {
+    if (value.isEmpty || value.length < 4) {
+      return 'Invalid otp code!';
+    }
+    return null;
+  };
 
   static final FormFieldValidator<String> defaultEmailValidator = (value) {
     if (value.isEmpty || !Regex.email.hasMatch(value)) {
@@ -555,8 +586,13 @@ class _FlutterLoginState extends State<FlutterLogin>
     const cardInitialHeight = 300;
     final cardTopPosition = deviceSize.height / 2 - cardInitialHeight / 2;
     final headerHeight = cardTopPosition - headerMargin;
+
+    final otpValidator =
+        widget.otpValidator ?? FlutterLogin.defaultOtpValidator;
     final emailValidator =
         widget.emailValidator ?? FlutterLogin.defaultEmailValidator;
+    final mobileValidator =
+        widget.mobileValidator ?? FlutterLogin.defaultMobileValidator;
     final passwordValidator =
         widget.passwordValidator ?? FlutterLogin.defaultPasswordValidator;
 
@@ -570,6 +606,8 @@ class _FlutterLoginState extends State<FlutterLogin>
             onLogin: widget.onLogin,
             onSignup: widget.onSignup,
             onRecoverPassword: widget.onRecoverPassword,
+            onOtpLogin: widget.onOtpLogin,
+            onOtpVerify: widget.onOtpVerify,
           ),
         ),
       ],
@@ -596,12 +634,16 @@ class _FlutterLoginState extends State<FlutterLogin>
                         key: authCardKey,
                         padding: EdgeInsets.only(top: cardTopPosition),
                         loadingController: _loadingController,
+                        mobileValidator: mobileValidator,
                         emailValidator: emailValidator,
+                        otpValidator: otpValidator,
                         passwordValidator: passwordValidator,
                         onSubmit: _reverseHeaderAnimation,
                         onSubmitCompleted: widget.onSubmitAnimationCompleted,
-                        flushbarConfigError: widget.flushbarConfigError ?? FlushbarConfig().errorDefault(),
-                        flushbarConfigSuccess: widget.flushbarConfigSuccess ?? FlushbarConfig().successDefault(),
+                        flushbarConfigError: widget.flushbarConfigError ??
+                            FlushbarConfig().errorDefault(),
+                        flushbarConfigSuccess: widget.flushbarConfigSuccess ??
+                            FlushbarConfig().successDefault(),
                       ),
                     ),
                     Positioned(
