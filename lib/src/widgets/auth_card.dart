@@ -1029,12 +1029,20 @@ class _OtpLoginCard extends StatefulWidget {
 class _OtpLoginCardState extends State<_OtpLoginCard>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
+
   final int _initalTimer = 30;
   int stateLogin = 1;
   int _timerSecond = 0;
+
   Timer _timer;
-  bool _showShadow = true;
+
+  var _isLoading = false;
+  var _showShadow = true;
+
   String loginType = "login";
+
+  AnimationController _loadingController;
+
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
   TextEditingController _refCodeController;
@@ -1045,13 +1053,40 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   AnimationController _switchAuthController;
   AnimationController _postSwitchAuthController;
 
+  Interval _textButtonLoadingAnimationInterval;
+  Animation<double> _buttonScaleAnimation;
+
   var _isSubmitting = false;
 
   AnimationController _submitController;
 
+  void handleLoadingAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.forward) {
+      setState(() => _isLoading = true);
+    }
+    if (status == AnimationStatus.completed) {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _textButtonLoadingAnimationInterval =
+        const Interval(.6, 1.0, curve: Curves.easeOut);
+    _buttonScaleAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _loadingController,
+      curve: Interval(.4, 1.0, curve: Curves.easeOutBack),
+    ));
+    _loadingController = (AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1150),
+      reverseDuration: Duration(milliseconds: 300),
+    )..value = 1.0);
+
+    _loadingController?.addStatusListener(handleLoadingAnimationStatus);
+
     _switchAuthController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 800),
@@ -1077,6 +1112,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   void dispose() {
     super.dispose();
     _timer.cancel();
+    _loadingController?.removeStatusListener(handleLoadingAnimationStatus);
     _submitController.dispose();
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
@@ -1188,6 +1224,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   Widget _buildRefCodeField(double width, LoginMessages messages, Auth auth) {
     return AnimatedRefCodeTextFormField(
+      loadingController: _loadingController,
       animatedWidth: width,
       enabled: auth.isSignup,
       focusNode: _refCodeFocusNode,
@@ -1204,6 +1241,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   Widget _buildOtpLoginField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
+      loadingController: _loadingController,
       controller: _nameController,
       width: width,
       labelText: messages.phoneNumberHint,
@@ -1219,6 +1257,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   Widget _buildOtpVerifyField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
+      loadingController: _loadingController,
       controller: _otpCodeController,
       width: width,
       labelText: messages.otpCodeHint,
@@ -1234,64 +1273,58 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     );
   }
 
-  String _printDuration(int s, String locale) {
-    Duration duration = new Duration(seconds: s);
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return replaceFarsiNumber("$twoDigitMinutes:$twoDigitSeconds", locale);
-  }
-
-  static String replaceFarsiNumber(String input, locale) {
-    if (locale == "fa" || locale == "ar") {
-      const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-      const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-
-      for (int i = 0; i < english.length; i++) {
-        input = input.replaceAll(english[i], farsi[i]);
-      }
-    }
-    return input;
-  }
-
   Widget _buildOtpButton(ThemeData theme, LoginMessages messages) {
-    return AnimatedButton(
-      controller: _submitController,
-      text: messages.otpLoginButton,
-      onPressed: !_isSubmitting ? _submit : null,
-    );
+    return ScaleTransition(
+        scale: _buttonScaleAnimation,
+        child: AnimatedButton(
+          controller: _submitController,
+          text: messages.otpLoginButton,
+          onPressed: !_isSubmitting ? _submit : null,
+        ));
   }
 
   Widget _buildOtpVerifyButton(ThemeData theme, LoginMessages messages) {
-    return AnimatedButton(
-      controller: _submitController,
-      text: messages.otpVerifyButton,
-      onPressed: !_isSubmitting ? _submitVerify : null,
-    );
+    return ScaleTransition(
+        scale: _buttonScaleAnimation,
+        child: AnimatedButton(
+          controller: _submitController,
+          text: messages.otpVerifyButton,
+          onPressed: !_isSubmitting ? _submitVerify : null,
+        ));
   }
 
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
     if (_timerSecond != 0 && stateLogin == 2)
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Text("${_printDuration(_timerSecond, messages.locale)}"),
-      );
-    return FlatButton(
-      child: Text(messages.goBackButton),
-      onPressed: !_isSubmitting
-          ? () {
-              if (stateLogin == 1) {
-                _formOtpKey.currentState.save();
-                widget.onSwitchLogin();
-              } else {
-                _switchAuthMode();
-              }
-            }
-          : null,
-      padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      textColor: theme.primaryColor,
-    );
+      return FadeIn(
+          controller: _loadingController,
+          offset: .5,
+          curve: _textButtonLoadingAnimationInterval,
+          fadeDirection: FadeDirection.topToBottom,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text("${_printDuration(_timerSecond, messages.locale)}"),
+          ));
+    return FadeIn(
+        controller: _loadingController,
+        offset: .5,
+        curve: _textButtonLoadingAnimationInterval,
+        fadeDirection: FadeDirection.topToBottom,
+        child: FlatButton(
+          child: Text(messages.goBackButton),
+          onPressed: !_isSubmitting
+              ? () {
+                  if (stateLogin == 1) {
+                    _formOtpKey.currentState.save();
+                    widget.onSwitchLogin();
+                  } else {
+                    _switchAuthMode();
+                  }
+                }
+              : null,
+          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          textColor: theme.primaryColor,
+        ));
   }
 
   @override
@@ -1321,12 +1354,17 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
             key: _formOtpKey,
             child: Column(
               children: [
-                Text(
-                  messages.otpLoginIntro,
-                  key: kOtpLoginIntroKey,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.body1,
-                ),
+                FadeIn(
+                    controller: _loadingController,
+                    offset: .5,
+                    curve: _textButtonLoadingAnimationInterval,
+                    fadeDirection: FadeDirection.topToBottom,
+                    child: Text(
+                      messages.otpLoginIntro,
+                      key: kOtpLoginIntroKey,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.body1,
+                    )),
                 SizedBox(height: 20),
                 _buildOtpLoginField(textFieldWidth, messages, auth),
                 SizedBox(height: 8),
@@ -1356,18 +1394,28 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                 ),
                 SizedBox(height: 12),
                 stateLogin == 1
-                    ? Text(
-                        messages.otpLoginDescription,
-                        key: kOtpLoginDescriptionKey,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.body1,
-                      )
-                    : Text(
-                        messages.otpLoginVerifyDescription,
-                        key: kOtpVerifyDescriptionKey,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.body1,
-                      ),
+                    ? FadeIn(
+                        controller: _loadingController,
+                        offset: .5,
+                        curve: _textButtonLoadingAnimationInterval,
+                        fadeDirection: FadeDirection.topToBottom,
+                        child: Text(
+                          messages.otpLoginDescription,
+                          key: kOtpLoginDescriptionKey,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.body1,
+                        ))
+                    : FadeIn(
+                        controller: _loadingController,
+                        offset: .5,
+                        curve: _textButtonLoadingAnimationInterval,
+                        fadeDirection: FadeDirection.topToBottom,
+                        child: Text(
+                          messages.otpLoginVerifyDescription,
+                          key: kOtpVerifyDescriptionKey,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.body1,
+                        )),
                 SizedBox(height: 26),
                 stateLogin == 1
                     ? _buildOtpButton(theme, messages)
@@ -1379,5 +1427,25 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
         ),
       ),
     );
+  }
+
+  String _printDuration(int s, String locale) {
+    Duration duration = new Duration(seconds: s);
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return replaceFarsiNumber("$twoDigitMinutes:$twoDigitSeconds", locale);
+  }
+
+  static String replaceFarsiNumber(String input, locale) {
+    if (locale == "fa" || locale == "ar") {
+      const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+      for (int i = 0; i < english.length; i++) {
+        input = input.replaceAll(english[i], farsi[i]);
+      }
+    }
+    return input;
   }
 }
