@@ -1006,6 +1006,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
   TextEditingController _refCodeController;
+
+  var _otpVerifyFocusNode = new FocusNode();
+  var _refCodeFocusNode = new FocusNode();
+
   AnimationController _switchAuthController;
   AnimationController _postSwitchAuthController;
 
@@ -1045,6 +1049,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
     _refCodeController.dispose();
+    _otpVerifyFocusNode.dispose();
+    _refCodeFocusNode.dispose();
   }
 
   void startTimer() {
@@ -1073,6 +1079,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
         stateLogin = 2;
       });
     } else {
+      _otpVerifyFocusNode.unfocus();
+      _refCodeFocusNode.unfocus();
       setState(() {
         stateLogin = 1;
       });
@@ -1093,10 +1101,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     final error = await auth.onOtpLogin(auth.email);
 
     if (error == "register" || error == "login" || error == null) {
-      if (error == null && error == "login")
-        setState(() => loginType = "login");
-      else if (error == null && error == "register")
+      if (error == null && error == "register")
         setState(() => loginType = "register");
+      else
+        setState(() => loginType = "login");
       showSuccessToast(
           context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
       setState(() {
@@ -1149,6 +1157,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     return AnimatedRefCodeTextFormField(
       animatedWidth: width,
       enabled: auth.isSignup,
+      focusNode: _refCodeFocusNode,
       inertiaController: _postSwitchAuthController,
       inertiaDirection: TextFieldInertiaDirection.right,
       labelText: messages.refCodeHint,
@@ -1180,6 +1189,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       controller: _otpCodeController,
       width: width,
       labelText: messages.otpCodeHint,
+      focusNode: _otpVerifyFocusNode,
       inertiaController: _postSwitchAuthController,
       inertiaDirection: TextFieldInertiaDirection.right,
       prefixIcon: Icon(FontAwesomeIcons.key),
