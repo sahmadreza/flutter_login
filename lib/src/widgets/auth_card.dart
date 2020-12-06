@@ -226,7 +226,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
         .then((_) => _routeTransitionController.forward());
   }
 
- Future<void> _forwardChangeRouteOtpAnimation() {
+  Future<void> _forwardChangeRouteOtpAnimation() {
     final isLogin = Provider.of<Auth>(context, listen: false).isLogin;
     final deviceSize = MediaQuery.of(context).size;
     final cardSize = getWidgetSize(_cardOtpKey);
@@ -1029,10 +1029,11 @@ class _OtpLoginCard extends StatefulWidget {
 class _OtpLoginCardState extends State<_OtpLoginCard>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
-  int stateLogin = 1;
-  Timer _timer;
   final int _initalTimer = 30;
+  int stateLogin = 1;
   int _timerSecond = 0;
+  Timer _timer;
+  bool _showShadow = true;
   String loginType = "login";
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
@@ -1166,7 +1167,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     final error =
         await auth.onOtpVerify(auth.email, auth.otpCode, auth.refCode);
 
+    Future.delayed(const Duration(milliseconds: 270), () {
+      setState(() => _showShadow = false);
+    });
+
     if (error != null) {
+      Future.delayed(const Duration(milliseconds: 270), () {
+        setState(() => _showShadow = true);
+      });
       showErrorToast(context, error, widget.flushbarConfigError);
       setState(() => _isSubmitting = false);
       _submitController.reverse();
@@ -1299,6 +1307,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     return FittedBox(
       // width: cardWidth,
       child: Card(
+        elevation: _showShadow ? theme.cardTheme.elevation : 0,
         child: Container(
           padding: const EdgeInsets.only(
             left: cardPadding,
