@@ -1000,10 +1000,12 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
   int stateLogin = 1;
   Timer _timer;
-  int _initalTimer = 30;
+  final int _initalTimer = 30;
+  int _timerSecond = 0;
+  String loginType = "login";
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
-
+  TextEditingController _refCodeController;
   AnimationController _switchAuthController;
   AnimationController _postSwitchAuthController;
 
@@ -1028,7 +1030,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     _nameController = new TextEditingController(text: auth.email);
 
     _otpCodeController = new TextEditingController(text: auth.otpCode);
-
+    _refCodeController = new TextEditingController(text: auth.refCode);
     _submitController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000),
@@ -1042,20 +1044,22 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     _submitController.dispose();
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
+    _refCodeController.dispose();
   }
 
   void startTimer() {
+    setState(() => _timerSecond = _initalTimer);
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
       (Timer timer) {
-        if (_initalTimer == 0) {
+        if (_timerSecond == 0) {
           setState(() {
             timer.cancel();
           });
         } else {
           setState(() {
-            _initalTimer--;
+            _timerSecond--;
           });
         }
       },
@@ -1089,6 +1093,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     final error = await auth.onOtpLogin(auth.email);
 
     if (error == "register" || error == "login" || error == null) {
+      if (error == null && error == "login")
+        setState(() => loginType = "login");
+      else if (error == null && error == "register")
+        setState(() => loginType = "register");
       showSuccessToast(
           context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
       setState(() {
@@ -1117,7 +1125,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     _formOtpKey.currentState.save();
     _submitController.forward();
     setState(() => _isSubmitting = true);
-    final error = await auth.onOtpVerify(auth.email, auth.otpCode);
+    final error =
+        await auth.onOtpVerify(auth.email, auth.otpCode, auth.refCode);
 
     if (error != null) {
       showErrorToast(context, error, widget.flushbarConfigError);
@@ -1134,6 +1143,21 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       widget?.onSubmitCompleted();
       return true;
     }
+  }
+
+  Widget _buildRefCodeField(double width, LoginMessages messages, Auth auth) {
+    return AnimatedRefCodeTextFormField(
+      animatedWidth: width,
+      enabled: auth.isSignup,
+      inertiaController: _postSwitchAuthController,
+      inertiaDirection: TextFieldInertiaDirection.right,
+      labelText: messages.refCodeHint,
+      controller: _refCodeController,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (value) => _submitVerify(),
+      validator: (value) => null,
+      onSaved: (value) => auth.refCode = value,
+    );
   }
 
   Widget _buildOtpLoginField(double width, LoginMessages messages, Auth auth) {
@@ -1167,12 +1191,24 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     );
   }
 
-  String _printDuration(int s) {
+  String _printDuration(int s, String locale) {
     Duration duration = new Duration(seconds: s);
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
+    return replaceFarsiNumber("$twoDigitMinutes:$twoDigitSeconds", locale);
+  }
+
+  static String replaceFarsiNumber(String input, locale) {
+    if (locale == "fa" || locale == "ar") {
+      const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+      for (int i = 0; i < english.length; i++) {
+        input = input.replaceAll(english[i], farsi[i]);
+      }
+    }
+    return input;
   }
 
   Widget _buildOtpButton(ThemeData theme, LoginMessages messages) {
@@ -1192,8 +1228,11 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   }
 
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
-    if (_initalTimer != 0 && stateLogin == 2)
-      return Text("${_printDuration(_initalTimer)}");
+    if (_timerSecond != 0 && stateLogin == 2)
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text("${_printDuration(_timerSecond, messages.locale)}"),
+      );
     return FlatButton(
       child: Text(messages.goBackButton),
       onPressed: !_isSubmitting
@@ -1257,7 +1296,15 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                   color: theme.cardTheme.color,
                   width: cardWidth,
                   onExpandCompleted: () => _postSwitchAuthController.forward(),
-                  child: _buildOtpVerifyField(textFieldWidth, messages, auth),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 6),
+                      _buildOtpVerifyField(textFieldWidth, messages, auth),
+                      if (loginType == "register") SizedBox(height: 14),
+                      if (loginType == "register")
+                        _buildRefCodeField(textFieldWidth, messages, auth),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 12),
                 stateLogin == 1

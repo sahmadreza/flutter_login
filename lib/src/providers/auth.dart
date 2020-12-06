@@ -11,7 +11,7 @@ typedef AuthCallback = Future<String> Function(LoginData);
 typedef RecoverCallback = Future<String> Function(String);
 
 /// The result is an error message, callback successes if message is null
-typedef OtpVerifyCallback = Future<String> Function(String, String);
+typedef OtpVerifyCallback = Future<String> Function(String, String, String);
 
 /// The result is an error message, callback successes if message is null
 typedef OtpLoginCallback = Future<String> Function(String);

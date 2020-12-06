@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class LoginMessages with ChangeNotifier {
   LoginMessages({
+    this.locale: defaultLocale,
     this.usernameHint: defaultUsernameHint,
     this.phoneNumberHint: defaulPhoneNumberHint,
     this.passwordHint: defaultPasswordHint,
@@ -28,6 +29,7 @@ class LoginMessages with ChangeNotifier {
     this.otpLoginVerifyDescription: defaultOtpLoginVerifyDescription
   });
 
+  static const defaultLocale = 'en';
   static const defaultUsernameHint = 'Email';
   static const defaulPhoneNumberHint = 'Phone';
   static const defaulOtpCodeHint = 'Otp Code';
@@ -78,6 +80,9 @@ class LoginMessages with ChangeNotifier {
 
   /// Forgot password button's label
   final String forgotPasswordButton;
+
+  /// Locale language
+  final String locale;
 
   /// Otp login button's label
   final String otpLoginButton;
