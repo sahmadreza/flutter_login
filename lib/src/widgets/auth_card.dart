@@ -1072,6 +1072,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
         _isSubmitting = false;
       });
       _submitController.reverse();
+       auth.otpCode = "";
       _switchAuthMode();
       return true;
     } else {
@@ -1116,7 +1117,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       controller: _nameController,
       width: width,
       labelText: messages.phoneNumberHint,
-      prefixIcon: Icon(FontAwesomeIcons.phoneAlt),
+      prefixIcon: Icon(FontAwesomeIcons.mobileAlt),
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submit(),
@@ -1211,7 +1212,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                 ),
                 SizedBox(height: 20),
                 _buildOtpLoginField(textFieldWidth, messages, auth),
-                SizedBox(height: 20),
+                SizedBox(height: 8),
                 ExpandableContainer(
                   backgroundColor: theme.accentColor,
                   controller: _switchAuthController,
@@ -1221,14 +1222,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                   alignment: Alignment.topLeft,
                   color: theme.cardTheme.color,
                   width: cardWidth,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: cardPadding,
-                    vertical: 10,
-                  ),
                   onExpandCompleted: () => _postSwitchAuthController.forward(),
                   child: _buildOtpVerifyField(textFieldWidth, messages, auth),
                 ),
-                SizedBox(height: 6),
+                SizedBox(height: 12),
                 stateLogin == 1
                     ? Text(
                         messages.otpLoginDescription,
