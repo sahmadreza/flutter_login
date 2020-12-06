@@ -1196,7 +1196,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     // animation completes, it will trigger rebuilding this widget and show all
     // textfields and buttons again before going to new route
     FocusScope.of(context).requestFocus(FocusNode());
-    
+
     if (!_formOtpKey.currentState.validate()) {
       return false;
     }
@@ -1211,18 +1211,16 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     Future.delayed(const Duration(milliseconds: 270), () {
       setState(() => _showShadow = false);
     });
-
+    _submitController.reverse();
     if (error != null) {
       Future.delayed(const Duration(milliseconds: 270), () {
         setState(() => _showShadow = true);
       });
       showErrorToast(context, error, widget.flushbarConfigError);
       setState(() => _isSubmitting = false);
-      _submitController.reverse();
       return false;
     }
-    setState(() => _isSubmitting = false);
-    _submitController.reverse();
+    // setState(() => _isSubmitting = false);
     widget?.onSubmitCompleted();
     return true;
   }
