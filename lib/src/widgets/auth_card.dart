@@ -1220,6 +1220,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       setState(() => _isSubmitting = false);
       return false;
     }
+    _loadingController.forward();
+
     // setState(() => _isSubmitting = false);
     widget?.onSubmitCompleted();
     return true;
