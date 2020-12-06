@@ -53,6 +53,7 @@ class AuthCard extends StatefulWidget {
 
 class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   GlobalKey _cardKey = GlobalKey();
+  GlobalKey _cardOtpKey = GlobalKey();
 
   var _isLoadingFirstTime = true;
   var _pageIndex = 0;
@@ -225,6 +226,35 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
         .then((_) => _routeTransitionController.forward());
   }
 
+ Future<void> _forwardChangeRouteOtpAnimation() {
+    final isLogin = Provider.of<Auth>(context, listen: false).isLogin;
+    final deviceSize = MediaQuery.of(context).size;
+    final cardSize = getWidgetSize(_cardOtpKey);
+    // add .25 to make sure the scaling will cover the whole screen
+    final widthRatio =
+        deviceSize.width / cardSize.height + (isLogin ? .25 : .65);
+    final heightRatio = deviceSize.height / cardSize.width + .25;
+
+    _cardSize2AnimationX =
+        Tween<double>(begin: 1.0, end: heightRatio / cardSizeScaleEnd)
+            .animate(CurvedAnimation(
+      parent: _routeTransitionController,
+      curve: Interval(.72727272, 1, curve: Curves.easeInOutCubic),
+    ));
+    _cardSize2AnimationY =
+        Tween<double>(begin: 1.0, end: widthRatio / cardSizeScaleEnd)
+            .animate(CurvedAnimation(
+      parent: _routeTransitionController,
+      curve: Interval(.72727272, 1, curve: Curves.easeInOutCubic),
+    ));
+
+    widget?.onSubmit();
+
+    return _formLoadingController
+        .reverse()
+        .then((_) => _routeTransitionController.forward());
+  }
+
   void _reverseChangeRouteAnimation() {
     _routeTransitionController
         .reverse()
@@ -340,6 +370,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                       flushbarConfigSuccess: widget.flushbarConfigSuccess,
                     )
                   : _OtpLoginCard(
+                      key: _cardOtpKey,
                       emailValidator: widget.emailValidator,
                       mobileValidator: widget.mobileValidator,
                       otpValidator: widget.otpValidator,
@@ -347,7 +378,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                       flushbarConfigError: widget.flushbarConfigError,
                       flushbarConfigSuccess: widget.flushbarConfigSuccess,
                       onSubmitCompleted: () {
-                        _forwardChangeRouteAnimation().then((_) {
+                        _forwardChangeRouteOtpAnimation().then((_) {
                           widget?.onSubmitCompleted();
                         });
                       },
@@ -1128,8 +1159,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       return false;
     }
     final auth = Provider.of<Auth>(context, listen: false);
-    final messages = Provider.of<LoginMessages>(context, listen: false);
-
+    // final messages = Provider.of<LoginMessages>(context, listen: false);
     _formOtpKey.currentState.save();
     _submitController.forward();
     setState(() => _isSubmitting = true);
@@ -1141,16 +1171,11 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       setState(() => _isSubmitting = false);
       _submitController.reverse();
       return false;
-    } else {
-      showSuccessToast(
-          context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
-      setState(() {
-        _isSubmitting = false;
-      });
-      _submitController.reverse();
-      widget?.onSubmitCompleted();
-      return true;
     }
+    // setState(() => _isSubmitting = false);
+    // _submitController.reverse();
+    widget?.onSubmitCompleted();
+    return true;
   }
 
   Widget _buildRefCodeField(double width, LoginMessages messages, Auth auth) {
@@ -1310,9 +1335,13 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                     children: [
                       SizedBox(height: 6),
                       _buildOtpVerifyField(textFieldWidth, messages, auth),
-                      if (loginType == "register") SizedBox(height: 14),
-                      if (loginType == "register")
-                        _buildRefCodeField(textFieldWidth, messages, auth),
+                      loginType == "register"
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14.0),
+                              child: _buildRefCodeField(
+                                  textFieldWidth, messages, auth),
+                            )
+                          : Container(),
                     ],
                   ),
                 ),
