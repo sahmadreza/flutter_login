@@ -1192,6 +1192,11 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   }
 
   Future<bool> _submitVerify() async {
+    // a hack to force unfocus the soft keyboard. If not, after change-route
+    // animation completes, it will trigger rebuilding this widget and show all
+    // textfields and buttons again before going to new route
+    FocusScope.of(context).requestFocus(FocusNode());
+    
     if (!_formOtpKey.currentState.validate()) {
       return false;
     }
