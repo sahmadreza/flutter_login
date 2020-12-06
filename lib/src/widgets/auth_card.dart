@@ -458,10 +458,12 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(milliseconds: 800),
     );
+
     _postSwitchAuthController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 150),
     );
+
     _submitController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000),
@@ -992,10 +994,13 @@ class _OtpLoginCard extends StatefulWidget {
 }
 
 class _OtpLoginCardState extends State<_OtpLoginCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
   int stateLogin = 1;
   TextEditingController _nameController;
+
+  AnimationController _switchAuthController;
+  AnimationController _postSwitchAuthController;
 
   var _isSubmitting = false;
 
@@ -1004,6 +1009,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   @override
   void initState() {
     super.initState();
+    _switchAuthController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+    _postSwitchAuthController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 150),
+    );
 
     final auth = Provider.of<Auth>(context, listen: false);
     _nameController = new TextEditingController(text: auth.email);
@@ -1018,6 +1031,16 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   void dispose() {
     super.dispose();
     _submitController.dispose();
+    _switchAuthController.dispose();
+    _postSwitchAuthController.dispose();
+  }
+
+  void _switchAuthMode() {
+    if (stateLogin == 1) {
+      _switchAuthController.forward();
+    } else {
+      _switchAuthController.reverse();
+    }
   }
 
   Future<bool> _submit() async {
@@ -1097,6 +1120,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       controller: _nameController,
       width: width,
       labelText: messages.otpCodeHint,
+      inertiaController: _postSwitchAuthController,
       prefixIcon: Icon(FontAwesomeIcons.key),
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.done,
@@ -1111,6 +1135,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       controller: _submitController,
       text: messages.otpLoginButton,
       onPressed: !_isSubmitting ? _submit : null,
+    );
+  }
+
+  Widget _buildOtpVerifyButton(ThemeData theme, LoginMessages messages) {
+    return AnimatedButton(
+      controller: _submitController,
+      text: messages.otpVerifyButton,
+      onPressed: !_isSubmitting ? _submitVerify : null,
     );
   }
 
@@ -1168,23 +1200,42 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                   style: theme.textTheme.body1,
                 ),
                 SizedBox(height: 20),
-                stateLogin == 1
-                    ? _buildOtpLoginField(textFieldWidth, messages, auth)
-                    : _buildOtpVerifyField(textFieldWidth, messages, auth),
+                _buildOtpLoginField(textFieldWidth, messages, auth),
                 SizedBox(height: 20),
-                stateLogin == 1 ? Text(
-                  messages.otpLoginDescription,
-                  key: kOtpLoginDescriptionKey,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.body1,
-                ) : Text(
-                  messages.otpLoginVerifyDescription,
-                  key: kOtpVerifyDescriptionKey,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.body1,
+                ExpandableContainer(
+                  backgroundColor: theme.accentColor,
+                  controller: _switchAuthController,
+                  initialState: stateLogin == 1
+                      ? ExpandableContainerState.shrunk
+                      : ExpandableContainerState.expanded,
+                  alignment: Alignment.topLeft,
+                  color: theme.cardTheme.color,
+                  width: cardWidth,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: cardPadding,
+                    vertical: 10,
+                  ),
+                  onExpandCompleted: () => _postSwitchAuthController.forward(),
+                  child: _buildOtpVerifyField(textFieldWidth, messages, auth),
                 ),
+                SizedBox(height: 6),
+                stateLogin == 1
+                    ? Text(
+                        messages.otpLoginDescription,
+                        key: kOtpLoginDescriptionKey,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.body1,
+                      )
+                    : Text(
+                        messages.otpLoginVerifyDescription,
+                        key: kOtpVerifyDescriptionKey,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.body1,
+                      ),
                 SizedBox(height: 26),
-                _buildOtpButton(theme, messages),
+                stateLogin == 1
+                    ? _buildOtpButton(theme, messages)
+                    : _buildOtpVerifyButton(theme, messages),
                 _buildBackButton(theme, messages),
               ],
             ),
