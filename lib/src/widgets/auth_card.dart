@@ -1137,7 +1137,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submitVerify(),
-      validator: widget.otpValidator,
+      validator: stateLogin == 2 ? widget.otpValidator : (value) => null,
       onSaved: (value) => auth.otpCode = value,
     );
   }
