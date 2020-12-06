@@ -8,6 +8,7 @@ class LoginMessages with ChangeNotifier {
     this.confirmPasswordHint: defaultConfirmPasswordHint,
     this.forgotPasswordButton: defaultForgotPasswordButton,
     this.otpLoginButton: defaultOtpLoginButton,
+    this.otpVerifyButton: defaultOtpVerifyButton,
     this.otpLoginIntro: defaultOtpLoginIntro,
     this.otpLoginDescription: defaultOtpLoginDescription,
     this.loginButton: defaultLoginButton,
@@ -24,6 +25,7 @@ class LoginMessages with ChangeNotifier {
     this.refCodeHint: defaultRefCodeHint,
     this.refCode: defaultRefCode,
     this.otpCodeHint: defaulOtpCodeHint,
+    this.otpLoginVerifyDescription: defaultOtpLoginVerifyDescription
   });
 
   static const defaultUsernameHint = 'Email';
@@ -33,6 +35,7 @@ class LoginMessages with ChangeNotifier {
   static const defaultConfirmPasswordHint = 'Confirm Password';
   static const defaultForgotPasswordButton = 'Forgot Password?';
   static const defaultOtpLoginButton = "Otp Login";
+  static const defaultOtpVerifyButton = "Verify code";
   static const defaultLoginButton = 'LOGIN';
   static const defaultSignupButton = 'SIGNUP';
   static const defaultRecoverPasswordButton = 'RECOVER';
@@ -49,6 +52,7 @@ class LoginMessages with ChangeNotifier {
   static const defaultFlushbarTitleSuccess = 'Success';
   static const defaultFlushbarTitleError = 'Erorr';
   static const defaultRefCodeHint = 'Referrer code (Optional)';
+  static const defaultOtpLoginVerifyDescription = "Enter the 5-digit code sent to the entered mobile number in the box above";
   static const defaultRefCode = '';
 
   /// Hint text of the user name [TextField]
@@ -78,11 +82,17 @@ class LoginMessages with ChangeNotifier {
   /// Otp login button's label
   final String otpLoginButton;
 
-  /// Intro in password recovery form
+    /// Otp verify button's label
+  final String otpVerifyButton;
+
+  /// Intro in otp login form
   final String otpLoginIntro;
 
-  /// Description in password recovery form
+  /// Description in otp login form
   final String otpLoginDescription;
+
+    /// Description in otp verify form
+  final String otpLoginVerifyDescription;
 
   /// Login button's label
   final String loginButton;

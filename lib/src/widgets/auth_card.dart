@@ -143,13 +143,15 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 
     auth.isRecover = recovery;
     if (recovery) {
-      _pageController.nextPage(
+      _pageController.animateToPage(
+        2,
         duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       );
-      _pageIndex = 1;
+      _pageIndex = 2;
     } else {
-      _pageController.previousPage(
+      _pageController.animateToPage(
+        0,
         duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       );
@@ -163,11 +165,11 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     auth.isOtpLogin = otpLogin;
     if (otpLogin) {
       _pageController.animateToPage(
-        2,
+        1,
         duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       );
-      _pageIndex = 2;
+      _pageIndex = 1;
     } else {
       _pageController.animateToPage(
         0,
@@ -329,7 +331,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                     },
                   ),
                 )
-              : (index == 1)
+              : (index == 2)
                   ? _RecoverCard(
                       emailValidator: widget.emailValidator,
                       onSwitchLogin: () => _switchRecovery(false),
@@ -1030,12 +1032,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     setState(() => _isSubmitting = true);
     final error = await auth.onOtpLogin(auth.email);
 
-    if (error != null) {
-      showErrorToast(context, error, widget.flushbarConfigError);
-      setState(() => _isSubmitting = false);
-      _submitController.reverse();
-      return false;
-    } else {
+    if (error == "register" || error == "login" || error == null) {
       showSuccessToast(
           context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
       setState(() {
@@ -1044,6 +1041,11 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       });
       _submitController.reverse();
       return true;
+    } else {
+      showErrorToast(context, error, widget.flushbarConfigError);
+      setState(() => _isSubmitting = false);
+      _submitController.reverse();
+      return false;
     }
   }
 
@@ -1170,9 +1172,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                     ? _buildOtpLoginField(textFieldWidth, messages, auth)
                     : _buildOtpVerifyField(textFieldWidth, messages, auth),
                 SizedBox(height: 20),
-                Text(
+                stateLogin == 1 ? Text(
                   messages.otpLoginDescription,
                   key: kOtpLoginDescriptionKey,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.body1,
+                ) : Text(
+                  messages.otpLoginVerifyDescription,
+                  key: kOtpVerifyDescriptionKey,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.body1,
                 ),

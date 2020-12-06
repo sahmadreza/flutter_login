@@ -6,6 +6,7 @@ const kRecoverPasswordDescriptionKey = const Key('RECOVER_PASSWORD_DESCRIPTION')
 
 const kOtpLoginIntroKey = const Key('OTP_LOGIN_INTRO');
 const kOtpLoginDescriptionKey = const Key('OTP_LOGIN_DESCRIPTION');
+const kOtpVerifyDescriptionKey = const Key('OTP_VERIFY_DESCRIPTION');
 
 const kDebugToolbarKey = const Key('DEBUG_TOOLBAR');
 
