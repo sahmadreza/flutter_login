@@ -1041,8 +1041,6 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   String loginType = "login";
 
-  AnimationController _loadingController;
-
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
   TextEditingController _refCodeController;
@@ -1052,6 +1050,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   AnimationController _switchAuthController;
   AnimationController _postSwitchAuthController;
+  AnimationController _loadingController;
 
   Interval _textButtonLoadingAnimationInterval;
   Animation<double> _buttonScaleAnimation;
@@ -1072,13 +1071,6 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   @override
   void initState() {
     super.initState();
-    _textButtonLoadingAnimationInterval =
-        const Interval(.6, 1.0, curve: Curves.easeOut);
-    _buttonScaleAnimation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _loadingController,
-      curve: Interval(.4, 1.0, curve: Curves.easeOutBack),
-    ));
     _loadingController = (AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1150),
@@ -1086,6 +1078,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     )..value = 1.0);
 
     _loadingController?.addStatusListener(handleLoadingAnimationStatus);
+
+    _textButtonLoadingAnimationInterval =
+        const Interval(.6, 1.0, curve: Curves.easeOut);
+    _buttonScaleAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _loadingController,
+      curve: Interval(.4, 1.0, curve: Curves.easeOutBack),
+    ));
 
     _switchAuthController = AnimationController(
       vsync: this,
