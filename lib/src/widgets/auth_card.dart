@@ -1042,7 +1042,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   void _switchAuthMode() {
     if (stateLogin == 1) {
       _switchAuthController.forward();
-       setState(() {
+      setState(() {
         stateLogin = 2;
       });
     } else {
@@ -1132,6 +1132,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       width: width,
       labelText: messages.otpCodeHint,
       inertiaController: _postSwitchAuthController,
+      inertiaDirection: TextFieldInertiaDirection.right,
       prefixIcon: Icon(FontAwesomeIcons.key),
       keyboardType: TextInputType.number,
       textInputAction: TextInputAction.done,
