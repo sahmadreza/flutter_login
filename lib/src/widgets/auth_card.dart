@@ -1176,14 +1176,11 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   }
 
   Widget _buildOtpButton(ThemeData theme, LoginMessages messages) {
-    if (_initalTimer == 0)
-      return AnimatedButton(
-        controller: _submitController,
-        text: messages.otpLoginButton,
-        onPressed: !_isSubmitting ? _submit : null,
-      );
-    else
-      return Text("${_printDuration(_initalTimer)}");
+    return AnimatedButton(
+      controller: _submitController,
+      text: messages.otpLoginButton,
+      onPressed: !_isSubmitting ? _submit : null,
+    );
   }
 
   Widget _buildOtpVerifyButton(ThemeData theme, LoginMessages messages) {
@@ -1195,6 +1192,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   }
 
   Widget _buildBackButton(ThemeData theme, LoginMessages messages) {
+    if (_initalTimer != 0 && stateLogin == 2)
+      return Text("${_printDuration(_initalTimer)}");
     return FlatButton(
       child: Text(messages.goBackButton),
       onPressed: !_isSubmitting
