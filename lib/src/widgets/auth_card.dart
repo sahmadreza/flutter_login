@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -683,6 +684,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
           style: theme.textTheme.body1,
           textAlign: TextAlign.left,
         ),
+        padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 2),
         onPressed: buttonEnabled
             ? () {
                 // save state to populate mobile field on otp login card
@@ -997,6 +999,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
   int stateLogin = 1;
+  Timer _timer;
+  int _initalTimer = 30;
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
 
@@ -1034,9 +1038,28 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   @override
   void dispose() {
     super.dispose();
+    _timer.cancel();
     _submitController.dispose();
     _switchAuthController.dispose();
     _postSwitchAuthController.dispose();
+  }
+
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_initalTimer == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _initalTimer--;
+          });
+        }
+      },
+    );
   }
 
   void _switchAuthMode() {
@@ -1072,7 +1095,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
         _isSubmitting = false;
       });
       _submitController.reverse();
-       auth.otpCode = "";
+      auth.otpCode = "";
+      startTimer();
       _switchAuthMode();
       return true;
     } else {
@@ -1143,12 +1167,23 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     );
   }
 
+  String _printDuration(int s) {
+    Duration duration = new Duration(seconds: s);
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+
   Widget _buildOtpButton(ThemeData theme, LoginMessages messages) {
-    return AnimatedButton(
-      controller: _submitController,
-      text: messages.otpLoginButton,
-      onPressed: !_isSubmitting ? _submit : null,
-    );
+    if (_initalTimer == 0)
+      return AnimatedButton(
+        controller: _submitController,
+        text: messages.otpLoginButton,
+        onPressed: !_isSubmitting ? _submit : null,
+      );
+    else
+      return Text("${_printDuration(_initalTimer)}");
   }
 
   Widget _buildOtpVerifyButton(ThemeData theme, LoginMessages messages) {
