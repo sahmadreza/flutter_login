@@ -1172,8 +1172,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       _submitController.reverse();
       return false;
     }
-    // setState(() => _isSubmitting = false);
-    // _submitController.reverse();
+    setState(() => _isSubmitting = false);
+    _submitController.reverse();
     widget?.onSubmitCompleted();
     return true;
   }
