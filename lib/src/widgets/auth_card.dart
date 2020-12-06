@@ -998,6 +998,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   final GlobalKey<FormState> _formOtpKey = GlobalKey();
   int stateLogin = 1;
   TextEditingController _nameController;
+  TextEditingController _otpCodeController;
 
   AnimationController _switchAuthController;
   AnimationController _postSwitchAuthController;
@@ -1019,7 +1020,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     );
 
     final auth = Provider.of<Auth>(context, listen: false);
+
     _nameController = new TextEditingController(text: auth.email);
+
+    _otpCodeController = new TextEditingController(text: auth.otpCode);
 
     _submitController = AnimationController(
       vsync: this,
@@ -1038,7 +1042,13 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   void _switchAuthMode() {
     if (stateLogin == 1) {
       _switchAuthController.forward();
+       setState(() {
+        stateLogin = 2;
+      });
     } else {
+      setState(() {
+        stateLogin = 1;
+      });
       _switchAuthController.reverse();
     }
   }
@@ -1060,9 +1070,9 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
           context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
       setState(() {
         _isSubmitting = false;
-        stateLogin = 2;
       });
       _submitController.reverse();
+      _switchAuthMode();
       return true;
     } else {
       showErrorToast(context, error, widget.flushbarConfigError);
@@ -1110,6 +1120,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submit(),
+      enabled: stateLogin == 1,
       validator: widget.mobileValidator,
       onSaved: (value) => auth.email = value,
     );
@@ -1117,7 +1128,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
   Widget _buildOtpVerifyField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
-      controller: _nameController,
+      controller: _otpCodeController,
       width: width,
       labelText: messages.otpCodeHint,
       inertiaController: _postSwitchAuthController,
@@ -1155,9 +1166,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                 _formOtpKey.currentState.save();
                 widget.onSwitchLogin();
               } else {
-                setState(() {
-                  stateLogin = 1;
-                });
+                _switchAuthMode();
               }
             }
           : null,
