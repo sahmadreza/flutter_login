@@ -1116,7 +1116,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       controller: _nameController,
       width: width,
       labelText: messages.phoneNumberHint,
-      prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
+      prefixIcon: Icon(FontAwesomeIcons.phoneAlt),
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submit(),
