@@ -1243,7 +1243,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     return AnimatedRefCodeTextFormField(
       loadingController: _loadingController,
       animatedWidth: width,
-      enabled: auth.isSignup,
+      enabled: loginTypeMode == "register",
       focusNode: _refCodeFocusNode,
       inertiaController: _postSwitchAuthController,
       inertiaDirection: TextFieldInertiaDirection.right,
