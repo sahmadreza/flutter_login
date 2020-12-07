@@ -714,14 +714,13 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       fadeDirection: FadeDirection.bottomToTop,
       offset: .5,
       curve: _textButtonLoadingAnimationInterval,
-      child: FlatButton(
+      child: GestureDetector(
         child: Text(
           messages.otpLoginButton,
           style: theme.textTheme.body1,
           textAlign: TextAlign.left,
         ),
-        padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 2),
-        onPressed: buttonEnabled
+        onTap: buttonEnabled
             ? () {
                 // save state to populate mobile field on otp login card
                 _formKey.currentState.save();
