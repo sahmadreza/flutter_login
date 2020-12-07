@@ -1224,6 +1224,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     Future.delayed(const Duration(milliseconds: 270), () {
       setState(() => _showShadow = false);
     });
+
     _submitController.reverse();
     if (error != null) {
       Future.delayed(const Duration(milliseconds: 270), () {
@@ -1285,7 +1286,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       inertiaDirection: TextFieldInertiaDirection.right,
       prefixIcon: Icon(FontAwesomeIcons.key),
       keyboardType: TextInputType.number,
-      textInputAction: TextInputAction.done,
+      textInputAction: loginTypeMode == "register" ? TextInputAction.next : TextInputAction.done,
       onFieldSubmitted: (value) => _submitVerify(),
       validator: stateLogin == 2 ? widget.otpValidator : (value) => null,
       onSaved: (value) => auth.otpCode = value,
