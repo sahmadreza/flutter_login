@@ -1087,12 +1087,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
 
     _otpCodeController = new TextEditingController(text: auth.otpCode);
     _refCodeController = new TextEditingController(text: auth.refCode);
-    
-    _loadingController = widget.loadingController ?? AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1150),
-      reverseDuration: Duration(milliseconds: 300),
-    )..value = 1.0);
+
+    _loadingController = widget.loadingController ??
+        (AnimationController(
+          vsync: this,
+          duration: Duration(milliseconds: 1150),
+          reverseDuration: Duration(milliseconds: 300),
+        )..value = 1.0);
+
 
     _loadingController?.addStatusListener(handleLoadingAnimationStatus);
     _nameTextFieldLoadingAnimationInterval = const Interval(0, .85);
