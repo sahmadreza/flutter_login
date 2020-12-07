@@ -1079,7 +1079,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   @override
   void initState() {
     super.initState();
-    
+
     final auth = Provider.of<Auth>(context, listen: false);
 
     _nameController = new TextEditingController(text: auth.email);
@@ -1093,7 +1093,6 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
           duration: Duration(milliseconds: 1150),
           reverseDuration: Duration(milliseconds: 300),
         )..value = 1.0);
-
 
     _loadingController?.addStatusListener(handleLoadingAnimationStatus);
     _nameTextFieldLoadingAnimationInterval = const Interval(0, .85);
@@ -1286,8 +1285,14 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       inertiaDirection: TextFieldInertiaDirection.right,
       prefixIcon: Icon(FontAwesomeIcons.key),
       keyboardType: TextInputType.number,
-      textInputAction: loginTypeMode == "register" ? TextInputAction.next : TextInputAction.done,
-      onFieldSubmitted: (value) => _submitVerify(),
+      textInputAction: loginTypeMode == "register"
+          ? TextInputAction.next
+          : TextInputAction.done,
+      onFieldSubmitted: loginTypeMode == "register"
+          ? (value) {
+            FocusScope.of(context).nextFocus();
+          }
+          : (value) => _submitVerify(),
       validator: stateLogin == 2 ? widget.otpValidator : (value) => null,
       onSaved: (value) => auth.otpCode = value,
     );
