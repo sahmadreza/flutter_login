@@ -1052,6 +1052,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   AnimationController _postSwitchAuthController;
   AnimationController _loadingController;
 
+  Interval _nameTextFieldLoadingAnimationInterval;
+  Interval _passTextFieldLoadingAnimationInterval;
   Interval _textButtonLoadingAnimationInterval;
   Animation<double> _buttonScaleAnimation;
 
@@ -1078,7 +1080,8 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     )..value = 1.0);
 
     _loadingController?.addStatusListener(handleLoadingAnimationStatus);
-
+    _nameTextFieldLoadingAnimationInterval = const Interval(0, .85);
+    _passTextFieldLoadingAnimationInterval = const Interval(.15, 1.0);
     _textButtonLoadingAnimationInterval =
         const Interval(.6, 1.0, curve: Curves.easeOut);
     _buttonScaleAnimation =
@@ -1246,6 +1249,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   Widget _buildOtpLoginField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       loadingController: _loadingController,
+      interval: _nameTextFieldLoadingAnimationInterval,
       controller: _nameController,
       width: width,
       labelText: messages.phoneNumberHint,
@@ -1262,6 +1266,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   Widget _buildOtpVerifyField(double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       loadingController: _loadingController,
+      interval: _passTextFieldLoadingAnimationInterval,
       controller: _otpCodeController,
       width: width,
       labelText: messages.otpCodeHint,
