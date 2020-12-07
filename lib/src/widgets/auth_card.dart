@@ -1045,7 +1045,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   var _isLoading = false;
   var _showShadow = true;
 
-  String loginType = "login";
+  String loginTypeMode = "login";
 
   TextEditingController _nameController;
   TextEditingController _otpCodeController;
@@ -1182,10 +1182,10 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
     final error = await auth.onOtpLogin(auth.email);
 
     if (error == "register" || error == "login" || error == null) {
-      if (error == null && error == "register")
-        setState(() => loginType = "register");
+      if (error != null && error == "register")
+        setState(() => loginTypeMode = "register");
       else
-        setState(() => loginType = "login");
+        setState(() => loginTypeMode = "login");
       showSuccessToast(
           context, messages.otpLoginSuccess, widget.flushbarConfigSuccess);
       setState(() {
@@ -1401,7 +1401,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
                     children: [
                       SizedBox(height: 6),
                       _buildOtpVerifyField(textFieldWidth, messages, auth),
-                      loginType == "register"
+                      loginTypeMode == "register"
                           ? Padding(
                               padding: EdgeInsets.symmetric(vertical: 14.0),
                               child: _buildRefCodeField(
