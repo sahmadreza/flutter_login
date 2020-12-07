@@ -369,20 +369,25 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                       flushbarConfigError: widget.flushbarConfigError,
                       flushbarConfigSuccess: widget.flushbarConfigSuccess,
                     )
-                  : _OtpLoginCard(
-                      key: _cardOtpKey,
-                      emailValidator: widget.emailValidator,
-                      mobileValidator: widget.mobileValidator,
-                      otpValidator: widget.otpValidator,
-                      onSwitchLogin: () => _switchOtpLogin(false),
-                      flushbarConfigError: widget.flushbarConfigError,
-                      flushbarConfigSuccess: widget.flushbarConfigSuccess,
-                      onSubmitCompleted: () {
-                        _forwardChangeRouteOtpAnimation().then((_) {
-                          widget?.onSubmitCompleted();
-                        });
-                      },
-                    );
+                  : _buildLoadingAnimator(
+                      theme: theme,
+                      child: _OtpLoginCard(
+                        key: _cardOtpKey,
+                        loadingController: _isLoadingFirstTime
+                            ? _formLoadingController
+                            : (_formLoadingController..value = 1.0),
+                        emailValidator: widget.emailValidator,
+                        mobileValidator: widget.mobileValidator,
+                        otpValidator: widget.otpValidator,
+                        onSwitchLogin: () => _switchOtpLogin(false),
+                        flushbarConfigError: widget.flushbarConfigError,
+                        flushbarConfigSuccess: widget.flushbarConfigSuccess,
+                        onSubmitCompleted: () {
+                          _forwardChangeRouteOtpAnimation().then((_) {
+                            widget?.onSubmitCompleted();
+                          });
+                        },
+                      ));
 
           return Align(
             alignment: Alignment.topCenter,
@@ -1012,8 +1017,10 @@ class _OtpLoginCard extends StatefulWidget {
     @required this.flushbarConfigError,
     @required this.flushbarConfigSuccess,
     @required this.onSubmitCompleted,
+    @required this.loadingController,
   }) : super(key: key);
 
+  final AnimationController loadingController;
   final FormFieldValidator<String> emailValidator;
   final FormFieldValidator<String> otpValidator;
   final FormFieldValidator<String> mobileValidator;
@@ -1073,7 +1080,15 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
   @override
   void initState() {
     super.initState();
-    _loadingController = (AnimationController(
+    
+    final auth = Provider.of<Auth>(context, listen: false);
+
+    _nameController = new TextEditingController(text: auth.email);
+
+    _otpCodeController = new TextEditingController(text: auth.otpCode);
+    _refCodeController = new TextEditingController(text: auth.refCode);
+    
+    _loadingController = widget.loadingController ?? AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1150),
       reverseDuration: Duration(milliseconds: 300),
@@ -1099,12 +1114,6 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
       duration: Duration(milliseconds: 150),
     );
 
-    final auth = Provider.of<Auth>(context, listen: false);
-
-    _nameController = new TextEditingController(text: auth.email);
-
-    _otpCodeController = new TextEditingController(text: auth.otpCode);
-    _refCodeController = new TextEditingController(text: auth.refCode);
     _submitController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000),
