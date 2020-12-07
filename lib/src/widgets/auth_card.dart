@@ -1290,7 +1290,7 @@ class _OtpLoginCardState extends State<_OtpLoginCard>
           : TextInputAction.done,
       onFieldSubmitted: loginTypeMode == "register"
           ? (value) {
-            FocusScope.of(context).nextFocus();
+            FocusScope.of(context).requestFocus(_refCodeFocusNode);
           }
           : (value) => _submitVerify(),
       validator: stateLogin == 2 ? widget.otpValidator : (value) => null,
